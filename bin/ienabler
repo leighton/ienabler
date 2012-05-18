@@ -1,0 +1,124 @@
+#!/bin/sh
+
+# Copyright (c) 2012, Leighton Turner
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# 
+# * The name Leighton Turner may not be used to endorse or promote products
+#   derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL LEIGHTON TURNER BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+usage() {
+cat << EOF
+Usage:  $0 [-d] <start | stop>
+
+        Start or Stop UC Internet Enabler
+    
+        start: Start Internet Enabler
+	stop: Stop Internet Enabler
+   
+        -d : delay exit of script (useful for debugging when executed from a GUI) 
+EOF
+}
+
+setup() {
+cat << EOF
+Please create the file "~/.ienabler" and set the following environment variables:
+
+export proxy_user=<username>
+export proxy_password=<password>
+
+Important! Ensure that you restict the permissions of the file (e.g. 600).
+EOF
+}
+
+enable=-1
+response=""
+# @arg1 operation[start|stop]
+# @arg2 delay[integer]
+run() {
+    case $1 in
+	start)
+            enable=1
+	    response="User authorized for standard services (1 rules)"
+            ;; 
+	stop)   
+            enable=2
+	    response="User was signed off from all services"
+            ;;
+	*)
+	    usage
+	    exit 1
+	    ;;
+    esac
+    
+    #Do the enable/disable
+    expect -c "
+	set timeout 20
+	spawn telnet ienabler.canterbury.ac.nz 259
+	expect \"User: \"
+	send \"$proxy_user\r\n\"
+	expect \"password: \"
+	send \"$proxy_password\r\n\"
+	expect \"Enter your choice: \"
+	send \"$enable\"
+        expect \"$response\"
+        exit
+	"
+    sleep $2
+    exit
+}
+
+delay=0
+operation=start
+
+if [ $# = 0 ]; then
+    usage
+    exit 1 
+
+elif [ $# = 1 ]; then
+    operation=$1
+
+elif [ $# = 2 ]; then
+
+    if [ $1 != "-d" ]; then
+	usage
+	exit 1
+    else
+	delay=6
+	operation=$2
+    fi
+
+else
+    usage
+    exit 1
+fi
+
+if [ -f ~/.ienabler ]; then
+    . ~/.ienabler
+else
+    setup
+    sleep $delay
+    exit 1
+fi
+
+run $operation $delay

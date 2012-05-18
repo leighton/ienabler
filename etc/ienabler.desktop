@@ -1,0 +1,11 @@
+#Example Ubuntu desktop entry, replace $IENABLER_ROOT with actual path
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon[en_GB]=$IENABLER_ROOT/etc/icns/ienabler_large.png
+Name[en_GB]=Internet Enabler
+Exec=gnome-terminal -e "$IENABLER_ROOT/bin/ienabler -d start"
+Name=Internet Enabler
+Icon=$IENABLER_ROOT/etc/icns/ienabler_large.png
