@@ -11,12 +11,15 @@ Dependencies:
 * expect 
 
 Debian: 
+
     apt-get install expect
 
-Mac OS X: 
+Mac OS X:
+
     port install expect 
 
-Fedora: 
+Fedora:
+
     yum install expect
 
 An example Desktop entry for Ubuntu comes packaged.
