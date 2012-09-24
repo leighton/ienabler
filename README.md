@@ -8,6 +8,6 @@ Usage:
     ienabler start|stop
 
 Dependencies:
-* expect (e.g. Debian: apt-get install expext, Mac OS X: port install expect, Fedora: yum install expect)
+* expect (e.g. Debian: apt-get install expect, Mac OS X: port install expect, Fedora: yum install expect)
 
 An example Desktop entry for Ubuntu comes packaged.
